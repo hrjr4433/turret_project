@@ -8,7 +8,9 @@ def rgb_detection(rgb,color='r'):
 		print "You need to choose red, blue, yellow, or green."
 		return []
 
+	# getting each columns
 	r,g,b = np.rollaxis(data,axis=-1)
+	# new array 3d, filled with zeros (black)
     result = np.zeros(data.shape[:3],dtype=np.uint8)
     
     # boundaries [b,g,r]
@@ -16,8 +18,11 @@ def rgb_detection(rgb,color='r'):
 				   'b':([86, 31, 4], [220, 88, 50]),
 				   'y':([25, 146, 190], [62, 174, 250]),
 				   'g':([103, 86, 65], [145, 133, 128])}
+	# get lower and upper bound
 	lower,upper = boundaries[color]
+	# get true or false 2d array
     mask = (b >= lower[0]) & (b <= upper[0]) & (g >= lower[0]) & (g <= upper[0]) & (r >= lower[2]) & (r <= upper[2])
+    # if true, fill with white 
     result[mask] = [255,255,255]
 
     return result
