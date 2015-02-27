@@ -10,8 +10,6 @@ def rgb_detection(rgb,color='r'):
 
 	# getting each columns
 	r,g,b = np.rollaxis(data,axis=-1)
-	# new array 3d, filled with zeros (black)
-    result = np.zeros(data.shape[:3],dtype=np.uint8)
     
     # boundaries [b,g,r]
     boundaries = { 'r':([17, 15, 100], [50, 56, 200]),
@@ -21,8 +19,4 @@ def rgb_detection(rgb,color='r'):
 	# get lower and upper bound
 	lower,upper = boundaries[color]
 	# get true or false 2d array
-    mask = (b >= lower[0]) & (b <= upper[0]) & (g >= lower[0]) & (g <= upper[0]) & (r >= lower[2]) & (r <= upper[2])
-    # if true, fill with white 
-    result[mask] = [255,255,255]
-
-    return result
+    return (b >= lower[0]) & (b <= upper[0]) & (g >= lower[0]) & (g <= upper[0]) & (r >= lower[2]) & (r <= upper[2])
