@@ -58,5 +58,8 @@ def erosion(bin_img, strt=3):
             z[i,j] = currmin
     return z
 
-def closing(bin_img):
-	return dilation(erosion(bin_img))
+def closing(bin_img, strt=3):
+	return dilation(erosion(bin_img,strt),strt+2)
+
+def opening(bin_img, strt=3):
+	return erosion(dilation(bin_img,strt),strt+2)

@@ -7,6 +7,9 @@ import picamera.array
 import time
 import threading
 import numpy as np
+import rgb_detect
+import labeling
+import morphology
 
 done = False
 lock = threading.Lock()
@@ -34,7 +37,13 @@ class ImageProcessor(threading.Thread):
                 try:
                     self.stream.seek(0)
                     image = self.stream.array
-                    mapped = surfarray.map_array(screen,image).transpose()
+                    mask = rgb_detect.rgb_detection(image).transpose()
+                    mask = morphology.closing(mask,5) - morphology.opening(mask,5)
+                    #int_img = labeling.labeling(mask)
+                    #mask = (int_img > 0)
+                    processed = np.zeros((size[0],size[1],3),np.uint8)
+                    processed[mask] = [255,255,255]
+                    mapped = surfarray.map_array(screen,processed)
                     surfarray.blit_array(screen, mapped)
                     pygame.display.update() 
                     if pygame.event.poll() == pygame.QUIT:
@@ -74,6 +83,6 @@ while pool:
     processor.terminated = True
     processor.join()
 
-finally:
-    camera.close()
-    print ('Program Terminated')
+#finally:
+#    camera.close()
+#    print ('Program Terminated')

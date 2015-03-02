@@ -21,3 +21,12 @@ def labeling(bin_img):
                     int_img[i,j] = label
                     label += 1
     return int_img
+
+def label_items(bin_img, min=30):
+    int_img = labeling(bin_img)
+    num_items = np.max(int_img)
+    for i in range(1,num_items+1):
+        mask = (int_img == i)
+        if mask.sum() < min:
+            int_img[mask] = 0
+    return int_img
