@@ -3,7 +3,6 @@
 import numpy as np
 from parakeet import jit
 
-
 @jit
 def dilation(bin_img, strt=3):
     r,c = bin_img.shape
