@@ -5,7 +5,7 @@ import numpy as np
 from parakeet import jit
 
 @jit
-def labeling_first(bin_img):
+def labeling(bin_img):
     # first pass
     r,c = bin_img.shape
     int_img = np.zeros((r,c),dtype=np.uint8)
@@ -43,7 +43,7 @@ def labeling_first(bin_img):
     return int_img
 
 def find_biggest_object(bin_img):
-    int_img = labeling_first(bin_img)
+    int_img = labeling(bin_img)
     num_obj = np.max(int_img)
     biggest = np.zeros(bin_img.shape, dtype=np.bool)
     biggest_num_pix = 0
