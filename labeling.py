@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# rgb detection
+# labeling
 import numpy as np
 from parakeet import jit
 
