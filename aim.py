@@ -33,9 +33,3 @@ def find_center(points, sides):
 @jit
 def get_degrees(row,col,center):
     return ((float)(center[0]-row/2)*(90/row),(float)(center[1]-col/2)*(90/col))
-
-@jit
-def get_pulse(s_min,s_max,degrees):
-    x,y = degrees
-    pulse_per_degree = (float)(s_max-s_min)/90
-    return ((int)x*pulse_per_degree, (int)y*pulse_per_degree)
