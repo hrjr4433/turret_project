@@ -5,9 +5,12 @@ import numpy as np
 from parakeet import jit
 
 @jit
-def find_center(points, sides):
+def find_center(screen_size,points, sides):
     r,c = points.shape
     center = [0,0]
+    center[0], center[1] = screen_size
+    center[0] /= 2
+    center[1] /= 2
     if r != 8 or c != 2 or sides < 3:
         return center
 
@@ -32,4 +35,4 @@ def find_center(points, sides):
 
 @jit
 def get_degrees(row,col,center):
-    return ((float)(center[0]-row/2)*(90/row),(float)(center[1]-col/2)*(90/col))
+    return (float((center[0]-row/2)*(90/row)),float((center[1]-col/2)*(90/col)))

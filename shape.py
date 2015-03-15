@@ -8,7 +8,7 @@ from parakeet import jit
 def find_points(bin_img):
     r,c = bin_img.shape
     # high left, left high, left low, low left, low right, right low, right high, high right
-    points = [[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]]
+    points = np.array([[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]])
     first_point_found = False
     token = False
     for i in xrange(r):

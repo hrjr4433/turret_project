@@ -22,8 +22,8 @@ class Servos:
 
     def get_pulses(self,degrees):
         y,x = degrees
-        pulse_per_degree = (float)(self.servoMax-servoMin)/90
-        return ((int)y*pulse_per_degree, (int)x*pulse_per_degree)
+        pulse_per_degree = float((self.servoMax-servoMin)/90)
+        return (int(y*pulse_per_degree), int(x*pulse_per_degree))
 
     def move_by_degree(self,degrees):
         y,x = self.get_pulses(degrees)

@@ -59,7 +59,7 @@ def erosion(bin_img, strt=3):
     return z
 
 def closing(bin_img, strt=3):
-	return dilation(erosion(bin_img,strt),strt+2)
+	return dilation(erosion(bin_img,strt),strt)
 
 def opening(bin_img, strt=3):
-	return erosion(dilation(bin_img,strt),strt+2)
+	return erosion(dilation(bin_img,strt),strt)
