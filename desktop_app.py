@@ -59,11 +59,13 @@ while 1:
     #morphology
     mask = morphology.closing(mask)
     mask,points = find_object(mask,4)
-    print points
+    # print points
     result[mask] = [255,255,255]
     center = aim.find_center(screen_size,points,4)
     print center
-    result[center[0],center[1]] = [17, 15, 100]
+    print aim.get_degrees(rows, cols, center)
+    # print center
+    # result[center[0],center[1]] = [17, 15, 100]
     
     # copy the camera image to the screen
     surfarray.blit_array(screen, result)
