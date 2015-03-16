@@ -33,6 +33,7 @@ def find_center(screen_size,points, sides):
         center[1] = points[1][1] + (points[5][1] - points[1][1])/2
     return center
 
+@jit
 def get_degrees(row,col,center):
     row = float(row)
     col = float(col)

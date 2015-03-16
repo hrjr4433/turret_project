@@ -63,7 +63,10 @@ while 1:
     result[mask] = [255,255,255]
     center = aim.find_center(screen_size,points,4)
     print center
-    print aim.get_degrees(rows, cols, center)
+    y,x = aim.get_degrees(rows, cols, center)
+    print y,x
+    pulse_per_degree = (530-270)/float(90)
+    print (int(y*pulse_per_degree), int(x*pulse_per_degree))
     # print center
     # result[center[0],center[1]] = [17, 15, 100]
     
