@@ -8,11 +8,12 @@ from pygame.locals import *
 import picamera
 import picamera.array
 import threading
+from parakeet import jit
 
 import aim
 import labeling
 import color
-#import hardware
+import hardware
 import morphology
 import shape
 
@@ -22,7 +23,8 @@ pool = []
 
 pygame.init()
 surfarray.use_arraytype('numpy')
-size = (320,240)
+size = (240,180)
+center = [size[1]/2,size[0]/2]
 screen = pygame.display.set_mode(size)
 camera = picamera.PiCamera()
 
@@ -37,7 +39,7 @@ class ImageProcessor(threading.Thread):
 
     def run(self):
         global done
-        while not self.terminated:
+        while not self.terminated and not done:
             if self.event.wait(1):
                 try:
                     self.stream.seek(0)
@@ -47,22 +49,25 @@ class ImageProcessor(threading.Thread):
                             done = True
                     
                     image = self.stream.array
-                    result = np.zeros((size[0],size[1],3),np.uint8)
-    ]
+                    result = np.zeros((size[1],size[0],3),np.uint8)
+
                     # color
-                    mask = color.find_color(image,'y').transpose()
+                    mask = color.find_color(image)
                     # morphology
                     #mask = morphology.closing(mask)
-                    #mask,points = find_object(mask,4)
+                    #mask,points = find_object(mask,5)
                     # print points
                     result[mask] = [255,255,255]
-                    #degrees = aim.get_degrees(aim.find_center(size,points,4))
+                    #center = aim.find_center(size,points,5)
+                    # print center
+                    #degrees = aim.get_degrees(size,center)
+                    #print degrees
                     #hardware.move_by_degrees(degrees)
                     #result[center[0],center[1]] = [17, 15, 100]
 
                     # update the screen to show the latest screen image
-                    # result = surfarray.map_array(screen,image).transpose()
-                    surfarray.blit_array(screen, result)
+                    mapped = surfarray.map_array(screen,result).transpose()
+                    surfarray.blit_array(screen, mapped)
                     pygame.display.update() 
                 finally:
                     self.stream.seek(0)
