@@ -19,4 +19,4 @@ def find_color(img,color='r'):
     # get lower and upper bound
     lower,upper = boundaries[color]
     # get true or false 2d array
-    return (b >= lower[0]) & (b <= upper[0]) & (g >= lower[0]) & (g <= upper[0]) & (r >= lower[2]) & (r <= upper[2])
+    return (g >= lower[0]) & (g <= upper[0]) & (b >= lower[1]) & (b <= upper[1]) & (r >= lower[2]) & (r <= upper[2])

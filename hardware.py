@@ -30,12 +30,16 @@ def setServoPulse(channel, pulse):
 
 def get_pulses(degrees):
     y,x = degrees
-    pulse_per_degree = (servoMax-servoMin)/float(90)
+    pulse_per_degree = (servoMax-servoMin)/float(60)
     return (servoMid+int(y*pulse_per_degree), servoMid+int(x*pulse_per_degree))
+
+def ready():
+    pwm.setPWM(servo_x, 0, servoMid)
+    pwm.setPWM(servo_y, 0, servoMid)
+    pwm.setPWM(servo_t, 0, servoMid)
 
 def move_by_degrees(degrees):
     y,x = get_pulses(degrees)
-    print y, x
     pwm.setPWM(servo_x, 0, x)
     pwm.setPWM(servo_y, 0, y)
 

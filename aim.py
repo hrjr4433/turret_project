@@ -11,7 +11,7 @@ def find_center(screen_size,points, sides):
     center[1], center[0] = screen_size
     center[0] /= 2
     center[1] /= 2
-    if r != 8 or c != 2 or sides < 3:
+    if r != 8 or c != 2 or sides < 3 or np.sum(points) == 0:
         return center
 
     if sides == 3:
@@ -33,11 +33,10 @@ def find_center(screen_size,points, sides):
         center[1] = points[1][1] + (points[5][1] - points[1][1])/2
     return center
 
-@jit
 def get_degrees(screen_size,center):
-    row,col = screen_size
+    col,row = screen_size
     row = float(row)
     col = float(col)
     center[0] = float(center[0])
     center[1] = float(center[1])
-    return (((center[0]-row/2)*(90/row)),-((center[1]-col/2)*(90/col)))
+    return (((center[0]-row/2)*(60/row)),-((center[1]-col/2)*(60/col)))

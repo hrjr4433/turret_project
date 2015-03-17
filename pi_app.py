@@ -1,4 +1,5 @@
 import io
+import os
 import sys
 import time
 import numpy as np
@@ -20,13 +21,17 @@ import shape
 done = False
 lock = threading.Lock()
 pool = []
+display = False
 
-pygame.init()
 surfarray.use_arraytype('numpy')
 size = (240,180)
-center = [size[1]/2,size[0]/2]
-screen = pygame.display.set_mode(size)
+if display:
+    pygame.init()
+    screen = pygame.display.set_mode(size)
 camera = picamera.PiCamera()
+target_found = False
+frame_count = 0
+hardware.ready()
 
 class ImageProcessor(threading.Thread):
     def __init__(self):
@@ -39,14 +44,15 @@ class ImageProcessor(threading.Thread):
 
     def run(self):
         global done
-        while not self.terminated and not done:
-            if self.event.wait(1):
+        while not self.terminated:
+            if self.event.wait(1) and not done:
                 try:
                     self.stream.seek(0)
-                    for event in pygame.event.get():
-                        if event.type == QUIT:
-                            pygame.quit()
-                            done = True
+                    if display:
+                        for event in pygame.event.get():
+                            if event.type == QUIT:
+                                pygame.quit()
+                                done = True
                     
                     image = self.stream.array
                     result = np.zeros((size[1],size[0],3),np.uint8)
@@ -54,21 +60,33 @@ class ImageProcessor(threading.Thread):
                     # color
                     mask = color.find_color(image)
                     # morphology
-                    #mask = morphology.closing(mask)
-                    #mask,points = find_object(mask,5)
+                    mask = morphology.closing(mask)
+                    mask,points = find_object(mask,5)
                     # print points
                     result[mask] = [255,255,255]
-                    #center = aim.find_center(size,points,5)
+                    center = aim.find_center(size,points,5)
                     # print center
-                    #degrees = aim.get_degrees(size,center)
-                    #print degrees
-                    #hardware.move_by_degrees(degrees)
+                    degrees = aim.get_degrees(size,center)
+                    # print degrees
+                    hardware.move_by_degrees(degrees)
+                    if np.sum(points) > 0:
+                        target_found = True
+                        frame_count += 1
+                        if frame_count > 20:
+                            hardware.fire()
+                            if not display:
+                                print 'Fired'
+                                done = True
+                    else:
+                        target_found = False
+                        frame_count = 0
                     #result[center[0],center[1]] = [17, 15, 100]
 
                     # update the screen to show the latest screen image
-                    mapped = surfarray.map_array(screen,result).transpose()
-                    surfarray.blit_array(screen, mapped)
-                    pygame.display.update() 
+                    if display:
+                        mapped = surfarray.map_array(screen,result).transpose()
+                        surfarray.blit_array(screen, mapped)
+                        pygame.display.update() 
                 finally:
                     self.stream.seek(0)
                     self.stream.truncate()
@@ -107,7 +125,6 @@ def find_object(bin_img, sides=4):
 
 # running part
 try:
-    
     if camera != None:
         pool = [ImageProcessor() for i in range(4)]
         camera.resolution = size
@@ -122,3 +139,10 @@ try:
         processor.join()
 finally:
     camera.close()
+    time.sleep(1)
+    hardware.ready()
+    filelist = [ f for f in os.listdir(".") if f.endswith(".pyc") ]
+    for f in filelist:
+        os.remove(f)
+    os.system("sudo rm -rf build")
+    
