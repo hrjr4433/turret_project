@@ -30,7 +30,7 @@ def setServoPulse(channel, pulse):
 
 def get_pulses(degrees):
     y,x = degrees
-    pulse_per_degree = (servoMax-servoMin)/float(60)
+    pulse_per_degree = (servoMax-servoMin)/float(50)
     return (servoMid+int(y*pulse_per_degree), servoMid+int(x*pulse_per_degree))
 
 def ready():

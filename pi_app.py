@@ -22,17 +22,55 @@ done = False
 lock = threading.Lock()
 pool = []
 display = False
-
+t_color = 'r'
+t_sides = 5
 surfarray.use_arraytype('numpy')
 size = (240,180)
-if display:
-    pygame.init()
-    screen = pygame.display.set_mode(size)
 camera = picamera.PiCamera()
 target_found = False
 frame_count = 0
 hardware.ready()
 
+print "                                         ###"
+print "                                     ## ##### ##"
+print "                                    ## ### ### ##"
+print "                                   ###  ## ##  ###"
+print "                                    ##   ###   ##"
+print "                                #    ##   #   ##"
+print "                               #        ## ##"
+print "                             #     #   ##   ##"
+print "                           #     #"
+print "            ##           #     #"
+print "        ###  ##       #      #"
+print "       #####  ##   #      #"
+print "        ###  ## #       #"
+print "            ##        #"
+print "       ######      #"
+print "      ## ####   #"
+print "     ##  #### # "
+print "      ##  ####"
+print "          ## ##"
+print "         ##   ##"
+print "        ##   ##"
+print "       ##   ##"
+
+print "Hello! This is your friendly automated sentry gun, 'Destroyer'!"
+option = raw_input("would you like to see what I see? ")
+if option == 'y' or option == 'Y' or option == 'yes' or option == 'Yes':
+    display = True
+option = raw_input("choose color of your target(r,b,y,g): ")
+if option == 'r' or option == 'b' or option == 'y' or option == 'g':
+    t_color = option
+option = raw_input("choose the number of sides of your target(3-8): ")
+if option >= 3 and option <= 8:
+    t_sides = option
+print ""
+print "Now the turret will get ready for the task. It might take a bit."
+
+if display:
+    pygame.init()
+    screen = pygame.display.set_mode(size)
+    
 class ImageProcessor(threading.Thread):
     def __init__(self):
         super(ImageProcessor, self).__init__()
@@ -58,16 +96,16 @@ class ImageProcessor(threading.Thread):
                     result = np.zeros((size[1],size[0],3),np.uint8)
 
                     # color
-                    mask = color.find_color(image)
+                    mask = color.find_color(image,t_color)
                     # morphology
                     mask = morphology.closing(mask)
-                    mask,points = find_object(mask,5)
-                    # print points
+                    mask,points = find_object(mask,t_sides)
+                    #print points
                     result[mask] = [255,255,255]
-                    center = aim.find_center(size,points,5)
-                    # print center
+                    center = aim.find_center(size,points,t_sides)
+                    #print center
                     degrees = aim.get_degrees(size,center)
-                    # print degrees
+                    #print degrees
                     hardware.move_by_degrees(degrees)
                     if np.sum(points) > 0:
                         target_found = True
@@ -86,7 +124,10 @@ class ImageProcessor(threading.Thread):
                     if display:
                         mapped = surfarray.map_array(screen,result).transpose()
                         surfarray.blit_array(screen, mapped)
-                        pygame.display.update() 
+                        pygame.display.update()
+                except:
+                    #do nothing
+                    print "A thread encountered an error"
                 finally:
                     self.stream.seek(0)
                     self.stream.truncate()
@@ -128,6 +169,8 @@ try:
     if camera != None:
         pool = [ImageProcessor() for i in range(4)]
         camera.resolution = size
+        #camera.vflip = True
+        #camera.hflip = True
         camera.framerate = 30
         time.sleep(2)
         camera.capture_sequence(streams(),'rgb', use_video_port=True)
@@ -145,4 +188,3 @@ finally:
     for f in filelist:
         os.remove(f)
     os.system("sudo rm -rf build")
-    
