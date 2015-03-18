@@ -39,4 +39,4 @@ def get_degrees(screen_size,center):
     col = float(col)
     center[0] = float(center[0])
     center[1] = float(center[1])
-    return (((center[0]-row/2)*(50/row)),-((center[1]-col/2)*(50/col)))
+    return (((center[0]-row/2)*(90/row)),-((center[1]-col/2)*(90/col)))
