@@ -22,8 +22,10 @@ done = False
 lock = threading.Lock()
 pool = []
 display = False
-t_color = 'r'
-t_sides = 5
+o_thr = True
+o_color = 'r'
+o_sides = 5
+prev_threshold = None
 surfarray.use_arraytype('numpy')
 size = (240,180)
 camera = picamera.PiCamera()
@@ -58,12 +60,16 @@ print "Hello! This is your friendly automated sentry gun, 'Destroyer'!"
 option = raw_input("would you like to see what I see? ")
 if option == 'y' or option == 'Y' or option == 'yes' or option == 'Yes':
     display = True
-option = raw_input("choose color of your target(r,b,y,g): ")
-if option == 'r' or option == 'b' or option == 'y' or option == 'g':
-    t_color = option
-option = raw_input("choose the number of sides of your target(3-8): ")
-if option >= 3 and option <= 8:
-    t_sides = option
+option = raw_input("choose what do you wish to find any moving object? ")
+if option == 'y' or option == 'Y' or option == 'yes' or option == 'Yes':
+    o_thr = True
+else:
+    option = raw_input("choose color of your target(r,b,y,g): ")
+    if option == 'r' or option == 'b' or option == 'y' or option == 'g':
+        o_color = option
+    option = raw_input("choose the number of sides of your target(3-8): ")
+    if option >= 3 and option <= 8:
+        o_sides = option
 print ""
 print "Now the turret will get ready for the task. It might take a bit."
 
@@ -95,14 +101,23 @@ class ImageProcessor(threading.Thread):
                     image = self.stream.array
                     result = np.zeros((size[1],size[0],3),np.uint8)
 
-                    # color
-                    mask = color.find_color(image,t_color)
-                    # morphology
-                    mask = morphology.closing(mask)
-                    mask,points = find_object(mask,t_sides)
+                    if o_thr:
+                        # color
+                        mask = color.find_color(image,o_color)
+                        # morphology
+                        mask = morphology.closing(mask)
+                        # find object
+                        mask,points = find_object(mask,o_sides)
+                    else:
+                        # thresholding
+                        mask = threshold.thresholding(image)
+                        # morphology
+                        mask = morphology.opening(mask)
+                        # find object
+                        mask,points,o_sides = find_any_object(mask)
                     #print points
                     result[mask] = [255,255,255]
-                    center = aim.find_center(size,points,t_sides)
+                    center = aim.find_center(size,points,o_sides)
                     #print center
                     degrees = aim.get_degrees(size,center)
                     #print degrees
@@ -112,9 +127,9 @@ class ImageProcessor(threading.Thread):
                         frame_count += 1
                         if frame_count > 20:
                             hardware.fire()
-                            if not display:
-                                print 'Fired'
-                                done = True
+                            print "Weapon fired!"
+                            print "The 'Destroyer' will now be deactivated"
+                            done = True
                     else:
                         target_found = False
                         frame_count = 0
@@ -163,6 +178,30 @@ def find_object(bin_img, sides=4):
                 biggest_pix = mask_sum
                 found = mask
     return (found,points)
+
+def find_any_moving_object(bin_img):
+    global prev_threshold
+    if prev_threshold is None:
+        prev_threshold = bin_img
+    else:
+        diff = np.subtract(bin_img,prev_threshold)  
+        prev_threshold = bin_img
+        bin_img = (diff != 0)
+    int_img = labeling.labeling(bin_img)
+    num_obj = np.max(int_img)
+    found = np.zeros(bin_img.shape, dtype=np.bool)
+    biggest_pix = 0
+    sides = 3
+    t_sides = 0
+    for i in range(1,num_obj+1):
+        mask = (int_img == i)
+        mask_sum = mask.sum()
+        points = shape.find_points(mask)
+        t_sides = shape.count_sides(points)
+        if mask_sum > 100 and mask_sum > biggest_pix and t_sides > sides:
+            biggest_pix = mask_sum
+            found = mask
+    return (found,points,t_sides)
 
 # running part
 try:
