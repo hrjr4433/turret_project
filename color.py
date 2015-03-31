@@ -12,10 +12,10 @@ def find_color(img,color='r'):
     r,g,b = np.rollaxis(img,axis=-1)
     
     # boundaries [b,g,r]
-    boundaries = { 'r':([17, 15, 100], [50, 56, 200]),
-                   'b':([86, 31, 4], [220, 88, 50]),
-                   'y':([25, 146, 190], [62, 174, 250]),
-                   'g':([103, 86, 65], [145, 133, 128])}
+    boundaries = { 'r':([17, 15, 100], [50, 56, 200]),   # red
+                   'b':([86, 31, 4], [220, 88, 50]),     # yellow
+                   'y':([25, 146, 190], [62, 174, 250]), # blue
+                   'g':([103, 86, 65], [145, 133, 128])} # gray
     # get lower and upper bound
     lower,upper = boundaries[color]
     # get true or false 2d array

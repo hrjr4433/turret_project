@@ -3,6 +3,8 @@
 from parakeet import jit
 import numpy as np
 
+threshold = 0
+
 # threshold
 def otsu(gray):
     num_b = 256
@@ -44,6 +46,8 @@ def gray_map(gray):
     return np.array([[[avg,avg,avg] for avg in col] for col in gray])
 
 def thresholding(rgb_img):
+    global threshold
     gray = rgb_to_gray(rgb_img)
-    threshold = otsu(gray)
+    if threshold == 0:
+        threshold = otsu(gray)
     return (gray < threshold)
