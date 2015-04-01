@@ -34,14 +34,14 @@ def labeling(bin_img):
         for j in xrange(c):
             if bin_img[i,j]:
                 min_r = max(0,i-1)
-                max_r = min(r,j+2)
+                max_r = min(r,i+2)
                 min_c = max(0,j-1)
                 max_c = min(c,j+2)
                 curr_label = int_img[i,j]
                 min_label = curr_label
                 for ii in xrange(min_r,max_r):
                     for jj in xrange(min_c,max_c):
-                        if bin_img[ii,jj] and int_img[ii,jj] > 0 and int_img[ii,jj] < min_label:
+                        if int_img[ii,jj] > 0 and int_img[ii,jj] < min_label:
                             min_label = int_img[ii,jj]
                 if min_neighbor[curr_label] > min_label:
                     min_neighbor[curr_label] = min_label

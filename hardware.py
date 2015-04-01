@@ -7,9 +7,9 @@ pwm = PWM(0x40)
 # Note if you'd like more debug output you can instead run:
 #pwm = PWM(0x40, debug=True)
 
-servoMin = 320  #140  # Min pulse length out of 4096
+servoMin = 340  #140  # Min pulse length out of 4096
 servoMid = 400  # mid point
-servoMax = 480  #660  # Max pulse length out of 4096
+servoMax = 460  #660  # Max pulse length out of 4096
 servoTrg = 450  # triger point
 servo_x = 0 # servo x channel
 servo_y = 1 # servo y channel
@@ -41,7 +41,7 @@ def ready():
 def move_by_degrees(degrees):
     y,x = get_pulses(degrees)
     pwm.setPWM(servo_x, 0, x)
-    pwm.setPWM(servo_y, 0, y-60) # camera position is lower than weapon
+    pwm.setPWM(servo_y, 0, y-25) # camera position is lower than weapon
 
 def fire():
     pwm.setPWM(servo_t, 0, servoTrg)

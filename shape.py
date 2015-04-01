@@ -60,6 +60,6 @@ def count_sides(points):
     sides = 0
     for i in xrange(8):
         n_i = (i+1)%8
-        if abs(points[i][0] - points[n_i][0]) > 5 or abs(points[i][1] - points[n_i][1]) > 5:
+        if (abs(points[i][0] - points[n_i][0]) + abs(points[i][1] - points[n_i][1])) > 5:
             sides += 1
     return sides

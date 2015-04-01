@@ -22,7 +22,7 @@ import threshold
 done = False
 lock = threading.Lock()
 pool = []
-display = False
+display = True
 display_option = 1
 center_display = False
 degree_display = False
@@ -61,12 +61,9 @@ print "        ##   ##"
 print "       ##   ##"
 
 print "Hello! This is your friendly automated sentry gun, 'Destroyer'!"
-option = raw_input("would you like to see what I see? ")
-if option == 'y' or option == 'Y' or option == 'yes' or option == 'Yes':
-    display = True
-    option = int(raw_input("Choose image raw(1), color/threshold(2), or shape/result(3)? "))
-    if option >= 1 and option <= 3:
-        display_option = option
+option = int(raw_input("Choose image raw(1), color/threshold(2), or shape/result(3)? "))
+if option >= 1 and option <= 3:
+    display_option = option
 option = raw_input("choose what do you wish to find any moving object? ")
 if option == 'y' or option == 'Y' or option == 'yes' or option == 'Yes':
     o_thr = True
@@ -74,7 +71,7 @@ else:
     option = raw_input("choose color of your target(r,b,y,g): ")
     if option == 'r' or option == 'b' or option == 'y' or option == 'g':
         o_color = option
-    option = raw_input("choose the number of sides of your target(3-8): ")
+    option = int(raw_input("choose the number of sides of your target(3-8): "))
     if option >= 3 and option <= 8:
         o_sides = option
 option = raw_input("would you like to see the center of mass? ")
@@ -139,7 +136,7 @@ class ImageProcessor(threading.Thread):
                     if np.sum(points) > 0:
                         target_found = True
                         frame_count += 1
-                        if frame_count > 40:
+                        if frame_count > 8:
                             hardware.fire()
                             #print "Weapon fired!"
                             #print "The 'Destroyer' will now be deactivated"
@@ -189,9 +186,10 @@ def streams():
 def find_object(bin_img, sides=4):
     int_img = labeling.labeling(bin_img)
     num_obj = np.max(int_img)
-    points = np.array([[0]])
+    found_points = np.array([[0]])
+    selected_label = 0
     found = np.zeros(bin_img.shape, dtype=np.bool)
-    biggest_pix = 0
+    biggest_pix = 100
     for i in range(1,num_obj+1):
         mask = (int_img == i)
         points = shape.find_points(mask)
@@ -200,7 +198,8 @@ def find_object(bin_img, sides=4):
             if  mask_sum > biggest_pix:
                 biggest_pix = mask_sum
                 found = mask
-    return (found,points)
+                found_points = points
+    return (found,found_points)
 
 def find_any_moving_object(bin_img):
     global prev_threshold
@@ -215,7 +214,7 @@ def find_any_moving_object(bin_img):
     found = np.zeros(bin_img.shape, dtype=np.bool)
     biggest_pix = 0
     t_sides = 0
-    points = np.array([[0]])
+    found_points = np.array([[0]])
     for i in range(1,num_obj+1):
         mask = (int_img == i)
         mask_sum = mask.sum()
@@ -225,16 +224,17 @@ def find_any_moving_object(bin_img):
             if t_sides > 3 and mask_sum > biggest_pix:
                 biggest_pix = mask_sum
                 found = mask
-    return (found,points,t_sides)
+                found_points = points
+    return (found,found_points,t_sides)
 
 # running part
 try:
     if camera != None:
-        pool = [ImageProcessor() for i in range(4)]
+        pool = [ImageProcessor() for i in range(1)]
         camera.resolution = size
         #camera.vflip = True
         #camera.hflip = True
-        camera.framerate = 30
+        camera.framerate = 15
         time.sleep(2)
         camera.capture_sequence(streams(),'rgb', use_video_port=True)
 
