@@ -61,9 +61,11 @@ print "        ##   ##"
 print "       ##   ##"
 
 print "Hello! This is your friendly automated sentry gun, 'Destroyer'!"
-option = int(raw_input("Choose image raw(1), color/threshold(2), or shape/result(3)? "))
+option = int(raw_input("Choose image raw(1), color/threshold(2), shape/result(3), or no display? "))
 if option >= 1 and option <= 3:
     display_option = option
+elif option == 4:
+    display = False
 option = raw_input("choose what do you wish to find any moving object? ")
 if option == 'y' or option == 'Y' or option == 'yes' or option == 'Yes':
     o_thr = True
@@ -225,7 +227,8 @@ def find_any_moving_object(bin_img):
                 biggest_pix = mask_sum
                 found = mask
                 found_points = points
-    return (found,found_points,t_sides)
+                found_sides = t_sides
+    return (found,found_points,found_sides)
 
 # running part
 try:
