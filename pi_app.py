@@ -61,7 +61,7 @@ print "        ##   ##"
 print "       ##   ##"
 
 print "Hello! This is your friendly automated sentry gun, 'Destroyer'!"
-option = int(raw_input("Choose image raw(1), color/threshold(2), shape/result(3), or no display? "))
+option = int(raw_input("Choose image raw(1), color/threshold(2), shape/result(3), or no display(4)? "))
 if option >= 1 and option <= 3:
     display_option = option
 elif option == 4:
@@ -140,14 +140,14 @@ class ImageProcessor(threading.Thread):
                         frame_count += 1
                         if frame_count > 8:
                             hardware.fire()
-                            #print "Weapon fired!"
-                            #print "The 'Destroyer' will now be deactivated"
-                            #done = True
+                            if not display:
+                                print "Weapon fired!"
+                                print "The 'Destroyer' will now be deactivated"
+                                done = True
                     else:
                         target_found = False
                         frame_count = 0
-                    #result[center[0],center[1]] = [17, 15, 100]
-
+                        
                     # update the screen to show the latest screen image
                     if display:
                         if display_option == 1:
@@ -159,12 +159,23 @@ class ImageProcessor(threading.Thread):
                                 mask = color_m
                         if display_option > 1:
                             result[mask] = [255,255,255]
+                        if o_sides > 3:
+                            min_r = max(0,center[0]-5)
+                            max_r = min(size[1],center[0]+6)
+                            min_c = max(0,center[1]-5)
+                            max_c = min(size[0],center[1]+6)
+                            for i in xrange(min_r,max_r):
+                                result[i,center[1]] = [17, 15, 100]
+                            for j in range(min_c,max_c):
+                                result[center[0],j] = [17, 15, 100]
+                            #result[center[0],center[1]] = [17, 15, 100]
+                        
                         mapped = surfarray.map_array(screen,result).transpose()
                         surfarray.blit_array(screen, mapped)
                         pygame.display.update()
                 except:
                     #do nothing
-                    print "A thread encountered an error"
+                    print "A thread encountered an error"                
                 finally:
                     self.stream.seek(0)
                     self.stream.truncate()
@@ -195,7 +206,11 @@ def find_object(bin_img, sides=4):
     for i in range(1,num_obj+1):
         mask = (int_img == i)
         points = shape.find_points(mask)
-        if shape.count_sides(points) == sides:
+        t_sides = shape.count_sides(points)
+        #if i == 1:
+        #    print points
+        #    print t_sides
+        if t_sides == sides:
             mask_sum = mask.sum()
             if  mask_sum > biggest_pix:
                 biggest_pix = mask_sum
@@ -209,13 +224,13 @@ def find_any_moving_object(bin_img):
         prev_threshold = bin_img
     else:
         diff = np.subtract(bin_img,prev_threshold)  
-        prev_threshold = bin_img
+        #prev_threshold = bin_img
         bin_img = (diff != 0)
     int_img = labeling.labeling(bin_img)
     num_obj = np.max(int_img)
     found = np.zeros(bin_img.shape, dtype=np.bool)
     biggest_pix = 0
-    t_sides = 0
+    found_sides = 0
     found_points = np.array([[0]])
     for i in range(1,num_obj+1):
         mask = (int_img == i)

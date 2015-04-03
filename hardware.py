@@ -41,7 +41,7 @@ def ready():
 def move_by_degrees(degrees):
     y,x = get_pulses(degrees)
     pwm.setPWM(servo_x, 0, x)
-    pwm.setPWM(servo_y, 0, y-25) # camera position is lower than weapon
+    pwm.setPWM(servo_y, 0, y-15) # camera position is lower than weapon
 
 def fire():
     pwm.setPWM(servo_t, 0, servoTrg)
